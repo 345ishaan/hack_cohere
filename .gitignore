@@ -1,3 +1,7 @@
+*.jpeg
+*.jpg
+*.png
+*.pth
 *.DS_Store
 Pipfile
 __pycache__/*
