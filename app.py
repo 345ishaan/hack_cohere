@@ -7,7 +7,7 @@ from text_classifier import Cohere
 
 st.header("Your personal document analyzer - Co:here application")
 
-api_key = st.text_input("API Key:", type="password")        #text box for API key 
+# api_key = st.text_input("API Key:", type="password")        #text box for API key 
 
 image = st.file_uploader("Upload your document here", type=['png', 'jpg', 'jpeg'])
 
@@ -18,7 +18,7 @@ def load_model():
     return reader
 
 reader = load_model()
-cohere = Cohere(api_key)                                    #initialization CoHere
+cohere = Cohere()
 cohere.fill_examples()   
 
 if image is not None:
@@ -28,15 +28,20 @@ if image is not None:
 
     with st.spinner("🤖 Running Analyzer! "):
         result = reader.readtext(np.array(input_image))
-        result_text = []
+        valid_words = []
         for res in result:
-            result_text.append(res[1])
-        all_text = ' '.join(result_text)
+            if res[2] > 0.5:
+                text = res[1].lower()
+                text = text.strip()
+                strip = ''.join(c for c in text if c.isalpha())
+                if len(strip) > 2:
+                    valid_words.append(strip)
+        result_text = ' '.join(valid_words)
         st.write(result_text)
-        here = cohere.classify([all_text])[0]                  #prediction 
+        here = cohere.classify([result_text])[0]
         col1, col2 = st.columns(2)
-        for no, con in enumerate(here.confidence):              #display likelihood for each label
-            if no % 2 == 0:                                     # in two columns
+        for no, con in enumerate(here.confidence):
+            if no % 2 == 0:
                 col1.write(f"{con.label}: {np.round(con.confidence*100, 2)}%")
                 col1.progress(con.confidence)
             else:
@@ -44,4 +49,3 @@ if image is not None:
                 col2.progress(con.confidence)    
 else:
     st.write("Upload an Image")
-

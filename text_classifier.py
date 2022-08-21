@@ -9,7 +9,7 @@ class Cohere:
         self.examples = []
     
     def fill_examples(self):
-        for e in load_examples.examples():
+        for e in load_examples.examples('doc_data', use_cache=True):
             self.examples.append(cohere.classify.Example(
                 text=e[0], label=e[1]
             ))
@@ -20,3 +20,4 @@ class Cohere:
             inputs=inputs,
             examples=self.examples
         ).classifications
+
